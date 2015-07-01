@@ -97,7 +97,7 @@ public class Comp3761Assign06 {
     {
         Set<Integer> visitedTotal = new HashSet<Integer>();
         int nextUnvisited = 1;
-        Set<Integer> tree;
+        int size;
         while(visitedTotal.size() < graph.getVertexCount())
         { 
             while (visitedTotal.contains(nextUnvisited))
@@ -107,16 +107,12 @@ public class Comp3761Assign06 {
             //System.out.println("nextUnvisited: " + nextUnvisited);
             if(dfs)
             {
-                tree = DFS(nextUnvisited);
+                size = DFS(visitedTotal, nextUnvisited);
             } else {
-                tree = BFS(nextUnvisited);
-            }
-            for (int node : tree)
-            {
-                visitedTotal.add(node);
+                size = BFS(visitedTotal, nextUnvisited);
             }
             //System.out.println(tree.size());
-            addTreeSize(tree.size());
+            addTreeSize(size);
         }
     }
     
@@ -130,9 +126,9 @@ public class Comp3761Assign06 {
         } 
     }
     
-    private static Set<Integer> DFS(int vertexName)
+    private static int DFS(Set<Integer> visited, int vertexName)
     {
-        Set<Integer> visited = new HashSet<Integer>();
+        int numOfNodes = 0;
         Stack<Integer> st = new Stack<Integer>();
         st.push(vertexName);
         int currentV;
@@ -142,6 +138,7 @@ public class Comp3761Assign06 {
             if (!visited.contains(currentV))
             {
                 visited.add(currentV);
+                numOfNodes++;
                 Vertex v = graph.getVertex(currentV);
                 Iterator it = v.getEdges();
                 while (it.hasNext())
@@ -153,12 +150,12 @@ public class Comp3761Assign06 {
                 }
             }
         }
-        return visited;
+        return numOfNodes;
     }
     
-    private static Set<Integer> BFS(int vertexName)
+    private static int BFS(Set<Integer> visited, int vertexName)
     {
-        Set<Integer> visited = new HashSet<Integer>();
+        int numOfNodes = 0;
         LinkedList<Integer> q = new LinkedList<Integer>();
         q.add(vertexName);
         int currentV;
@@ -168,6 +165,7 @@ public class Comp3761Assign06 {
             if (!visited.contains(currentV))
             {
                 visited.add(currentV);
+                numOfNodes++;
                 Vertex v = graph.getVertex(currentV);
                 Iterator it = v.getEdges();
                 while (it.hasNext())
@@ -179,7 +177,7 @@ public class Comp3761Assign06 {
                 }
             }
         }
-        return visited;
+        return numOfNodes;
     }
     
     private static void createGraph(ArrayList<String> edges)

@@ -20,6 +20,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /**
  * @author Gabriella Cheung, A00782867
@@ -40,6 +41,7 @@ public class Comp3761Assign06 {
         String edge = "";
         //StringTokenizer vertices;
         int v1, v2;
+        Pattern pattern = Pattern.compile(" ");
         System.out.println("Creating graph from graph.txt...");
         try {
             BufferedReader br = new BufferedReader(new FileReader("graph.txt"));
@@ -51,7 +53,8 @@ public class Comp3761Assign06 {
                 //v1 = Integer.parseInt(vertices.nextToken());
                 //v2 = Integer.parseInt(vertices.nextToken());
                 
-                String[] edgeSplit = edge.split(" ");
+                //String[] edgeSplit = edge.split(" ");
+                String[] edgeSplit = pattern.split(edge, 0);
                 v1 = Integer.parseInt(edgeSplit[0]);
                 v2 = Integer.parseInt(edgeSplit[1]);
                 //Vertex vertex1 = graph.addVertex(v1);

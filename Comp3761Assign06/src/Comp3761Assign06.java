@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
@@ -157,7 +156,7 @@ public class Comp3761Assign06 {
                     {
                         int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
                         stack.addLast(nextVName);
-                        vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)] = true;
+                        vertexAdded[nextVName] = true;
                     }
                 }
             }
@@ -188,7 +187,7 @@ public class Comp3761Assign06 {
                     {
                         int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
                         queue.addLast(nextVName);
-                        vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)] = true;
+                        vertexAdded[nextVName] = true;
                     }
                 }
             }

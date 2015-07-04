@@ -47,9 +47,9 @@ class AdjacencyListGraph implements Graph
 	{
 		Vertex v = e.getSource();
 		Vertex w = e.getDestination();
-		edges_.add( e );
+		//edges_.add( e );
 		v.addEdge( e );
-		if( !directed_ )
+		if( !directed_ )			
 			w.addEdge( e );
 		return e;
 	}
@@ -100,13 +100,13 @@ class AdjacencyListGraph implements Graph
 	
 	public Vertex addVertex( Object vertexName )
 	{
-	    if (getVertex(vertexName) == null)
-	    {
+	    //if (getVertex(vertexName) == null)
+	    //{
 	        Vertex v = new AdjacencyListVertex( vertexName );
 	        addVertex( vertexName, v );
 	        return v;
-	    }
-		return getVertex(vertexName);
+	    //}
+		//return getVertex(vertexName);
 	}
 	
 	public Vertex addVertex( Object vertexName, Vertex v )

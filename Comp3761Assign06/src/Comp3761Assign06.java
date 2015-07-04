@@ -6,7 +6,6 @@
  */
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,10 +15,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
-import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 /**
@@ -30,40 +27,42 @@ public class Comp3761Assign06 {
 
     private static final int numOfTreeSizes = 5;
     private static ArrayList<Integer> treeSizes;
+    private static final String fileName = "graph.txt";
     private static Graph graph;
     /**
      * @param args
      */
     public static void main(String[] args) {
         
-        treeSizes = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0, 0)); // initialize this using numOfTreeSizes?
         graph = new AdjacencyListGraph();
-        String edge = "";
-        //StringTokenizer vertices;
+        String edge;
         int v1, v2;
+        String[] edgeSplit;
         Pattern pattern = Pattern.compile(" ");
-        System.out.println("Creating graph from graph.txt...");
+        System.out.println("Creating graph from " + fileName + "...");
         try {
-            BufferedReader br = new BufferedReader(new FileReader("graph.txt"));
-            //Scanner scanner = new Scanner(new File("graph.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
             
             while((edge = br.readLine()) != null) {
-                //edge = scanner.nextLine();
-                //vertices = new StringTokenizer(edge, "  ,.");
-                //v1 = Integer.parseInt(vertices.nextToken());
-                //v2 = Integer.parseInt(vertices.nextToken());
                 
-                //String[] edgeSplit = edge.split(" ");
-                String[] edgeSplit = pattern.split(edge, 0);
+                edgeSplit = pattern.split(edge, 0);
                 v1 = Integer.parseInt(edgeSplit[0]);
                 v2 = Integer.parseInt(edgeSplit[1]);
-                //Vertex vertex1 = graph.addVertex(v1);
-                //Vertex vertex2 = graph.addVertex(v2);
-                
-                //graph.addEdge(vertex1, vertex2);
-                graph.addEdge(graph.addVertex(v1), graph.addVertex(v2));
+                Vertex vertex1 = graph.getVertex(v1);
+                if (vertex1 == null)
+                {
+                	vertex1 = graph.addVertex(v1);
+                }
+                Vertex vertex2 = graph.getVertex(v2);
+                if (vertex2 == null)
+                {
+                	vertex2 = graph.addVertex(v2);
+                }
+                graph.addEdge(vertex1, vertex2);
+                //graph.addEdge(graph.addVertex(edgeSplit[0]), graph.addVertex(edgeSplit[1]));
+                //graph.addEdge(graph.addVertex(v1), graph.addVertex(v2));
                 //System.out.println(graph.getEdgeCount());
-                //System.out.println(graph.getVertexCount());
+                System.out.println(graph.getVertexCount());
             }
 
             br.close();
@@ -74,15 +73,19 @@ public class Comp3761Assign06 {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        boolean useDFS = true;
 
-        findTreeSizes(true);
+        treeSizes = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0, 0)); // initialize this using numOfTreeSizes?
+        findTreeSizes(useDFS);
         System.out.println(numOfTreeSizes + " largest tree sizes using DFS:");
         printTreeSizes();
         
+        useDFS = false;
         treeSizes = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0, 0));
         //System.out.println(treeSizes);
         
-        findTreeSizes(false);
+        findTreeSizes(useDFS);
         System.out.println(numOfTreeSizes + " largest tree sizes using BFS:");
         printTreeSizes();
     }
@@ -117,6 +120,7 @@ public class Comp3761Assign06 {
             //System.out.println(tree.size());
             addTreeSize(size);
         }
+        visitedTotal = null;
     }
     
     private static void addTreeSize(int treeSize)
@@ -143,16 +147,16 @@ public class Comp3761Assign06 {
                 visited.add(currentV);
                 numOfNodes++;
                 Vertex v = graph.getVertex(currentV);
-                Iterator it = v.getEdges();
+                Iterator it = v.getAdjacentVertices();
                 while (it.hasNext())
                 {
-                    Edge e = (Edge) it.next();
-                    Vertex nextV = (Vertex) e.otherVertex(v);
+                	Vertex nextV = (Vertex) it.next();
                     int nextVName = (int) nextV.getAttribute("Name");
                     st.push(nextVName);
                 }
             }
         }
+        System.out.println("size of stack:" + st.size());
         return numOfNodes;
     }
     
@@ -170,11 +174,10 @@ public class Comp3761Assign06 {
                 visited.add(currentV);
                 numOfNodes++;
                 Vertex v = graph.getVertex(currentV);
-                Iterator it = v.getEdges();
+                Iterator it = v.getAdjacentVertices();
                 while (it.hasNext())
                 {
-                    Edge e = (Edge) it.next();
-                    Vertex nextV = (Vertex) e.otherVertex(v);
+                	Vertex nextV = (Vertex) it.next();
                     int nextVName = (int) nextV.getAttribute("Name");
                     q.add(nextVName);
                 }
@@ -182,41 +185,4 @@ public class Comp3761Assign06 {
         }
         return numOfNodes;
     }
-    
-    private static void createGraph(ArrayList<String> edges)
-    {
-        for (String edge : edges)
-        {
-            StringTokenizer vertices = new StringTokenizer(edge, "  ,.");
-            int v1 = Integer.parseInt(vertices.nextToken());
-            int v2 = Integer.parseInt(vertices.nextToken());
-            
-            Vertex vertex1 = graph.addVertex(v1);
-            Vertex vertex2 = graph.addVertex(v2);
-            
-            graph.addEdge(vertex1, vertex2);
-        }
-        
-        System.out.println(graph.getEdgeCount());
-        System.out.println(graph.getVertexCount());
-        
-    }
-    
-    
-    private static ArrayList<String> readFile(String fileName)
-    {
-        ArrayList<String> lines = new ArrayList<String>();
-        try {
-            Scanner scanner = new Scanner(new File(fileName));
-            
-            while(scanner.hasNext()) {
-                lines.add(scanner.nextLine());
-            }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return lines;
-    }
-
 }

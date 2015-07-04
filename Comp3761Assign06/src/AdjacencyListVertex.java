@@ -15,9 +15,26 @@ class AdjacencyListVertex implements Vertex
 		edges_ = new LinkedList();
 	}
 	
+	private boolean vertexSaved( Edge e )
+	{
+		Iterator it = getAdjacentVertices();
+		Vertex other = e.otherVertex(this);
+		while (it.hasNext())
+		{
+			if ((Vertex) it.next() == other)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void addEdge( Edge e )
 	{
-		edges_.add( e );
+		if (!vertexSaved( e ))
+		{
+			edges_.add( e );
+		}
 	}
 	
 	public void removeEdge( Edge e )

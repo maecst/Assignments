@@ -119,7 +119,7 @@ public class Comp3761Assign06 {
             //System.out.println(tree.size());
             addTreeSize(size);
         }
-        resetVisited();
+        resetFlags();
     }
     
     private static void addTreeSize(int treeSize)
@@ -135,13 +135,13 @@ public class Comp3761Assign06 {
     private static int DFS(int vertexName)
     {
         int numOfNodes = 0;
-        boolean[] vertexAdded = new boolean[graph.getVertexCount() + 1];
         LinkedList<Integer> stack = new LinkedList<Integer>();
         stack.addLast(vertexName);
-        vertexAdded[vertexName] = true;
+        Vertex currentV = graph.getVertex(vertexName);
+        currentV.setAttribute(AdjacencyListVertex.addedToList, true);
         while (stack.size() != 0)
         {
-            Vertex currentV = graph.getVertex(stack.removeLast());
+            currentV = graph.getVertex(stack.removeLast());
             if (!(boolean) currentV.getAttribute(AdjacencyListVertex.visited))
             {
                 currentV.setAttribute(AdjacencyListVertex.visited, true);
@@ -152,11 +152,11 @@ public class Comp3761Assign06 {
                 while (it.hasNext())
                 {
                     Vertex nextV = (Vertex) it.next();
-                    if (!vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)])
+                    if (!(boolean) nextV.getAttribute(AdjacencyListVertex.addedToList))
                     {
                         int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
                         stack.addLast(nextVName);
-                        vertexAdded[nextVName] = true;
+                        nextV.setAttribute(AdjacencyListVertex.addedToList, true);
                     }
                 }
             }
@@ -167,27 +167,27 @@ public class Comp3761Assign06 {
     private static int BFS(int vertexName)
     {
         int numOfNodes = 0;
-        boolean[] vertexAdded = new boolean[graph.getVertexCount() + 1];
         LinkedList<Integer> queue = new LinkedList<Integer>();
         queue.addLast(vertexName);
-        vertexAdded[vertexName] = true;
+        Vertex currentV = graph.getVertex(vertexName);
+        currentV.setAttribute(AdjacencyListVertex.addedToList, true);
         while (queue.size() != 0)
         {
-            Vertex v = graph.getVertex(queue.removeFirst());
-            if (!(boolean) v.getAttribute(AdjacencyListVertex.visited))
+            currentV = graph.getVertex(queue.removeFirst());
+            if (!(boolean) currentV.getAttribute(AdjacencyListVertex.visited))
             {
-                v.setAttribute(AdjacencyListVertex.visited, true);
+                currentV.setAttribute(AdjacencyListVertex.visited, true);
                 numOfNodes++;
                 totalVisited++;
-                Iterator it = v.getAdjacentVertices();
+                Iterator it = currentV.getAdjacentVertices();
                 while (it.hasNext())
                 {
                     Vertex nextV = (Vertex) it.next();
-                    if (!vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)])
+                    if (!(boolean) nextV.getAttribute(AdjacencyListVertex.addedToList))
                     {
                         int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
                         queue.addLast(nextVName);
-                        vertexAdded[nextVName] = true;
+                        nextV.setAttribute(AdjacencyListVertex.addedToList, true);
                     }
                 }
             }
@@ -195,11 +195,12 @@ public class Comp3761Assign06 {
         return numOfNodes;
     }
     
-    private static void resetVisited()
+    private static void resetFlags()
     {
         for (int i = 1; i <= graph.getVertexCount(); i++)
         {
             graph.getVertex(i).setAttribute(AdjacencyListVertex.visited, false);
+            graph.getVertex(i).setAttribute(AdjacencyListVertex.addedToList, false);
         }
     }
 }

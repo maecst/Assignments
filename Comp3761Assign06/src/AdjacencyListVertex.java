@@ -8,12 +8,14 @@ class AdjacencyListVertex implements Vertex
 {
 	public static final String name = "Name";
 	public static final String visited = "Visited";
+	public static final String addedToList = "Added";
 	private List edges_;
 	
 	public AdjacencyListVertex( Object n )
 	{
 		setAttribute( name, n );
 		setAttribute( visited , false );
+		setAttribute( addedToList, false );
 		edges_ = new LinkedList();
 	}
 	

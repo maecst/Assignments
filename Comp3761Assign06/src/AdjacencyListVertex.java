@@ -7,11 +7,13 @@ import java.util.LinkedList;
 class AdjacencyListVertex implements Vertex
 {
 	public static final String name = "Name";
+	public static final String visited = "Visited";
 	private List edges_;
 	
 	public AdjacencyListVertex( Object n )
 	{
 		setAttribute( name, n );
+		setAttribute( visited , false );
 		edges_ = new LinkedList();
 	}
 	

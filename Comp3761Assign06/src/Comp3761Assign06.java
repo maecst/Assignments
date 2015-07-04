@@ -12,11 +12,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.Stack;
 import java.util.regex.Pattern;
 
 /**
@@ -29,6 +26,7 @@ public class Comp3761Assign06 {
     private static ArrayList<Integer> treeSizes;
     private static final String fileName = "graph.txt";
     private static Graph graph;
+    private static int totalVisited = 0;
     /**
      * @param args
      */
@@ -62,7 +60,7 @@ public class Comp3761Assign06 {
                 //graph.addEdge(graph.addVertex(edgeSplit[0]), graph.addVertex(edgeSplit[1]));
                 //graph.addEdge(graph.addVertex(v1), graph.addVertex(v2));
                 //System.out.println(graph.getEdgeCount());
-                System.out.println(graph.getVertexCount());
+                //System.out.println(graph.getVertexCount());
             }
 
             br.close();
@@ -74,6 +72,7 @@ public class Comp3761Assign06 {
             e.printStackTrace();
         }
         
+        System.out.println("Graph created successfully.");
         boolean useDFS = true;
 
         treeSizes = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0, 0)); // initialize this using numOfTreeSizes?
@@ -101,26 +100,27 @@ public class Comp3761Assign06 {
     
     private static void findTreeSizes(boolean dfs)
     {
-        Set<Integer> visitedTotal = new HashSet<Integer>();
+        System.out.println("Now running findTreeSizes using " + (dfs==true? "DFS":"BFS"));
+        totalVisited = 0;
         int nextUnvisited = 1;
         int size;
-        while(visitedTotal.size() < graph.getVertexCount())
+        while(totalVisited < graph.getVertexCount())
         { 
-            while (visitedTotal.contains(nextUnvisited))
+            while ((boolean) graph.getVertex(nextUnvisited).getAttribute(AdjacencyListVertex.visited))
             {
                 nextUnvisited++;
             }
-            //System.out.println("nextUnvisited: " + nextUnvisited);
+            System.out.println("nextUnvisited: " + nextUnvisited);
             if(dfs)
             {
-                size = DFS(visitedTotal, nextUnvisited);
+                size = DFS(nextUnvisited);
             } else {
-                size = BFS(visitedTotal, nextUnvisited);
+                size = BFS(nextUnvisited);
             }
             //System.out.println(tree.size());
             addTreeSize(size);
         }
-        visitedTotal = null;
+        resetVisited();
     }
     
     private static void addTreeSize(int treeSize)
@@ -133,56 +133,63 @@ public class Comp3761Assign06 {
         } 
     }
     
-    private static int DFS(Set<Integer> visited, int vertexName)
+    private static int DFS(int vertexName)
     {
         int numOfNodes = 0;
-        Stack<Integer> st = new Stack<Integer>();
-        st.push(vertexName);
-        int currentV;
-        while (!st.empty())
+        LinkedList<Integer> stack = new LinkedList<Integer>();
+        stack.addFirst(vertexName);
+        while (stack.size() != 0)
         {
-            currentV = st.pop();
-            if (!visited.contains(currentV))
+            Vertex currentV = graph.getVertex(stack.removeLast());
+            if (!(boolean) currentV.getAttribute(AdjacencyListVertex.visited))
             {
-                visited.add(currentV);
+                currentV.setAttribute(AdjacencyListVertex.visited, true);
                 numOfNodes++;
-                Vertex v = graph.getVertex(currentV);
-                Iterator it = v.getAdjacentVertices();
+                totalVisited++;
+                Iterator it = currentV.getAdjacentVertices();
                 while (it.hasNext())
                 {
                 	Vertex nextV = (Vertex) it.next();
-                    int nextVName = (int) nextV.getAttribute("Name");
-                    st.push(nextVName);
+                    int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
+                    stack.addFirst(nextVName);
                 }
             }
         }
-        System.out.println("size of stack:" + st.size());
         return numOfNodes;
     }
     
-    private static int BFS(Set<Integer> visited, int vertexName)
+    private static int BFS(int vertexName)
     {
         int numOfNodes = 0;
-        LinkedList<Integer> q = new LinkedList<Integer>();
-        q.add(vertexName);
+        LinkedList<Integer> queue = new LinkedList<Integer>();
+        queue.addLast(vertexName);
         int currentV;
-        while (q.size() != 0)
+        while (queue.size() != 0)
         {
-            currentV = q.remove();
-            if (!visited.contains(currentV))
+            currentV = queue.removeFirst();
+            Vertex v = graph.getVertex(currentV);
+            if (!(boolean) v.getAttribute(AdjacencyListVertex.visited))
             {
-                visited.add(currentV);
+                v.setAttribute(AdjacencyListVertex.visited, true);
                 numOfNodes++;
-                Vertex v = graph.getVertex(currentV);
+                totalVisited++;
                 Iterator it = v.getAdjacentVertices();
                 while (it.hasNext())
                 {
                 	Vertex nextV = (Vertex) it.next();
-                    int nextVName = (int) nextV.getAttribute("Name");
-                    q.add(nextVName);
+                    int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
+                    queue.addLast(nextVName);
                 }
             }
         }
         return numOfNodes;
+    }
+    
+    private static void resetVisited()
+    {
+        for (int i = 1; i <= graph.getVertexCount(); i++)
+        {
+            graph.getVertex(i).setAttribute(AdjacencyListVertex.visited, false);
+        }
     }
 }

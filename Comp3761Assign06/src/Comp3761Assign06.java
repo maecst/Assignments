@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 
@@ -46,19 +47,19 @@ public class Comp3761Assign06 {
                 edgeSplit = pattern.split(edge, 0);
                 v1 = Integer.parseInt(edgeSplit[0]);
                 v2 = Integer.parseInt(edgeSplit[1]);
+                
                 Vertex vertex1 = graph.getVertex(v1);
                 if (vertex1 == null)
                 {
                 	vertex1 = graph.addVertex(v1);
                 }
+                
                 Vertex vertex2 = graph.getVertex(v2);
                 if (vertex2 == null)
                 {
                 	vertex2 = graph.addVertex(v2);
                 }
                 graph.addEdge(vertex1, vertex2);
-                //graph.addEdge(graph.addVertex(edgeSplit[0]), graph.addVertex(edgeSplit[1]));
-                //graph.addEdge(graph.addVertex(v1), graph.addVertex(v2));
                 //System.out.println(graph.getEdgeCount());
                 //System.out.println(graph.getVertexCount());
             }
@@ -82,7 +83,6 @@ public class Comp3761Assign06 {
         
         useDFS = false;
         treeSizes = new ArrayList<Integer>(Arrays.asList(0, 0, 0, 0, 0));
-        //System.out.println(treeSizes);
         
         findTreeSizes(useDFS);
         System.out.println(numOfTreeSizes + " largest tree sizes using BFS:");
@@ -100,7 +100,7 @@ public class Comp3761Assign06 {
     
     private static void findTreeSizes(boolean dfs)
     {
-        System.out.println("Now running findTreeSizes using " + (dfs==true? "DFS":"BFS"));
+        System.out.println("Now running findTreeSizes using " + (dfs==true? "DFS":"BFS") + "...");
         totalVisited = 0;
         int nextUnvisited = 1;
         int size;
@@ -110,7 +110,7 @@ public class Comp3761Assign06 {
             {
                 nextUnvisited++;
             }
-            System.out.println("nextUnvisited: " + nextUnvisited);
+            //System.out.println("nextUnvisited: " + nextUnvisited);
             if(dfs)
             {
                 size = DFS(nextUnvisited);
@@ -136,8 +136,10 @@ public class Comp3761Assign06 {
     private static int DFS(int vertexName)
     {
         int numOfNodes = 0;
+        boolean[] vertexAdded = new boolean[graph.getVertexCount() + 1];
         LinkedList<Integer> stack = new LinkedList<Integer>();
-        stack.addFirst(vertexName);
+        stack.addLast(vertexName);
+        vertexAdded[vertexName] = true;
         while (stack.size() != 0)
         {
             Vertex currentV = graph.getVertex(stack.removeLast());
@@ -147,11 +149,16 @@ public class Comp3761Assign06 {
                 numOfNodes++;
                 totalVisited++;
                 Iterator it = currentV.getAdjacentVertices();
+                
                 while (it.hasNext())
                 {
-                	Vertex nextV = (Vertex) it.next();
-                    int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
-                    stack.addFirst(nextVName);
+                    Vertex nextV = (Vertex) it.next();
+                    if (!vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)])
+                    {
+                        int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
+                        stack.addLast(nextVName);
+                        vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)] = true;
+                    }
                 }
             }
         }
@@ -161,13 +168,13 @@ public class Comp3761Assign06 {
     private static int BFS(int vertexName)
     {
         int numOfNodes = 0;
+        boolean[] vertexAdded = new boolean[graph.getVertexCount() + 1];
         LinkedList<Integer> queue = new LinkedList<Integer>();
         queue.addLast(vertexName);
-        int currentV;
+        vertexAdded[vertexName] = true;
         while (queue.size() != 0)
         {
-            currentV = queue.removeFirst();
-            Vertex v = graph.getVertex(currentV);
+            Vertex v = graph.getVertex(queue.removeFirst());
             if (!(boolean) v.getAttribute(AdjacencyListVertex.visited))
             {
                 v.setAttribute(AdjacencyListVertex.visited, true);
@@ -176,9 +183,13 @@ public class Comp3761Assign06 {
                 Iterator it = v.getAdjacentVertices();
                 while (it.hasNext())
                 {
-                	Vertex nextV = (Vertex) it.next();
-                    int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
-                    queue.addLast(nextVName);
+                    Vertex nextV = (Vertex) it.next();
+                    if (!vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)])
+                    {
+                        int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
+                        queue.addLast(nextVName);
+                        vertexAdded[(int) nextV.getAttribute(AdjacencyListVertex.name)] = true;
+                    }
                 }
             }
         }

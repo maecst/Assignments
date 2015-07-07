@@ -26,7 +26,8 @@ public class Comp3761Assign06 {
     private static ArrayList<Integer> treeSizes;
     private static final String fileName = "graph.txt";
     private static Graph graph;
-    private static int totalVisited = 0;
+    private static int totalVisited;
+    private static final int startingVertex = 1;
     /**
      * @param args
      */
@@ -86,6 +87,8 @@ public class Comp3761Assign06 {
         findTreeSizes(useDFS);
         System.out.println(numOfTreeSizes + " largest tree sizes using BFS:");
         printTreeSizes();
+        
+        System.out.println("\nProgram completed.");
     }
     
     private static void printTreeSizes()
@@ -101,7 +104,7 @@ public class Comp3761Assign06 {
     {
         System.out.println("Now running findTreeSizes using " + (dfs==true? "DFS":"BFS") + "...");
         totalVisited = 0;
-        int nextUnvisited = 1;
+        int nextUnvisited = startingVertex;
         int size;
         while(totalVisited < graph.getVertexCount())
         { 
@@ -110,16 +113,18 @@ public class Comp3761Assign06 {
                 nextUnvisited++;
             }
             //System.out.println("nextUnvisited: " + nextUnvisited);
-            if(dfs)
+            /*if(dfs)
             {
                 size = DFS(nextUnvisited);
             } else {
                 size = BFS(nextUnvisited);
-            }
+            }*/
+            size = searchForTree(nextUnvisited, dfs);
+            totalVisited += size;
             //System.out.println(tree.size());
             addTreeSize(size);
         }
-        resetFlags();
+        resetVisited();
     }
     
     private static void addTreeSize(int treeSize)
@@ -132,75 +137,118 @@ public class Comp3761Assign06 {
         } 
     }
     
+    private static int searchForTree(int vertexName, boolean dfs)
+    {
+        int numOfNodes = 0;
+        LinkedList<Iterator> list = new LinkedList<Iterator>(); // a list to keep track of list of adjacent vertices
+        Vertex currentV = graph.getVertex(vertexName);
+        
+        // set vertex to visited and increment counter
+        currentV.setAttribute(AdjacencyListVertex.visited, true);
+        numOfNodes++;
+        
+        // add list of current vertex's adjacent vertices to stack
+        list.addLast(currentV.getAdjacentVertices());
+        
+        while (list.size() != 0)
+        {
+        	Iterator it;
+        	if (dfs)
+        	{
+        		it = list.removeLast(); // remove the last iterator that was added as if list is a stack
+        	} else {
+        		it = list.removeFirst(); // remove the first iterator that was added as if list is a queue
+        	}
+        	while (it.hasNext())
+        	{
+        		currentV = (Vertex) it.next();
+        		if (!(boolean) currentV.getAttribute(AdjacencyListVertex.visited)) // if vertex has not been visited
+        		{
+        			// set vertex to visited and increment counter
+        			currentV.setAttribute(AdjacencyListVertex.visited, true);
+        			numOfNodes++;
+                    
+                    // add list of current vertex's adjacent vertices to stack
+        			list.addLast(currentV.getAdjacentVertices());
+        		}
+        	}
+        }
+        return numOfNodes;
+    }
+    
+    // this method works fine, but will need to be updated if we decide to not use searchForTree method
     private static int DFS(int vertexName)
     {
         int numOfNodes = 0;
-        LinkedList<Integer> stack = new LinkedList<Integer>();
-        stack.addLast(vertexName);
+        LinkedList<Iterator> stack = new LinkedList<Iterator>();
         Vertex currentV = graph.getVertex(vertexName);
-        currentV.setAttribute(AdjacencyListVertex.addedToList, true);
+        stack.addLast(currentV.getAdjacentVertices()); // add list of current vertex's adjacent vertices to stack
+        currentV.setAttribute(AdjacencyListVertex.visited, true);
+        numOfNodes++;
+        totalVisited++;
         while (stack.size() != 0)
         {
-            currentV = graph.getVertex(stack.removeLast());
-            if (!(boolean) currentV.getAttribute(AdjacencyListVertex.visited))
-            {
-                currentV.setAttribute(AdjacencyListVertex.visited, true);
-                numOfNodes++;
-                totalVisited++;
-                Iterator it = currentV.getAdjacentVertices();
-                
-                while (it.hasNext())
-                {
-                    Vertex nextV = (Vertex) it.next();
-                    if (!(boolean) nextV.getAttribute(AdjacencyListVertex.addedToList))
-                    {
-                        int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
-                        stack.addLast(nextVName);
-                        nextV.setAttribute(AdjacencyListVertex.addedToList, true);
-                    }
-                }
-            }
+        	Iterator it = stack.peekLast(); // get last list but don't remove yet
+        	boolean allVisited = true;
+        	while (it.hasNext())
+        	{
+        		Vertex v = (Vertex) it.next();
+        		if (!(boolean) v.getAttribute(AdjacencyListVertex.visited)) // if vertex has not been visited
+        		{
+        			allVisited = false;
+        			v.setAttribute(AdjacencyListVertex.visited, true);
+        			numOfNodes++;
+                    totalVisited++;
+        			stack.addLast(v.getAdjacentVertices());
+        		}
+        	}
+        	if (allVisited)
+        	{
+        		stack.removeLast(); // remove list of vertices if all of them have been visited
+        	}
         }
         return numOfNodes;
     }
     
+    // this method works fine, but will need to be updated if we decide to not use searchForTree method
     private static int BFS(int vertexName)
     {
         int numOfNodes = 0;
-        LinkedList<Integer> queue = new LinkedList<Integer>();
-        queue.addLast(vertexName);
+        LinkedList<Iterator> queue = new LinkedList<Iterator>();
         Vertex currentV = graph.getVertex(vertexName);
-        currentV.setAttribute(AdjacencyListVertex.addedToList, true);
+        queue.addLast(currentV.getAdjacentVertices()); // add list of current vertex's adjacent vertices to queue
+        currentV.setAttribute(AdjacencyListVertex.visited, true);
+        numOfNodes++;
+        totalVisited++;
         while (queue.size() != 0)
         {
-            currentV = graph.getVertex(queue.removeFirst());
-            if (!(boolean) currentV.getAttribute(AdjacencyListVertex.visited))
-            {
-                currentV.setAttribute(AdjacencyListVertex.visited, true);
-                numOfNodes++;
-                totalVisited++;
-                Iterator it = currentV.getAdjacentVertices();
-                while (it.hasNext())
-                {
-                    Vertex nextV = (Vertex) it.next();
-                    if (!(boolean) nextV.getAttribute(AdjacencyListVertex.addedToList))
-                    {
-                        int nextVName = (int) nextV.getAttribute(AdjacencyListVertex.name);
-                        queue.addLast(nextVName);
-                        nextV.setAttribute(AdjacencyListVertex.addedToList, true);
-                    }
-                }
-            }
+        	Iterator it = queue.peekFirst(); // get first list but don't remove yet
+        	boolean allVisited = true;
+        	while (it.hasNext())
+        	{
+        		Vertex v = (Vertex) it.next();
+        		if (!(boolean) v.getAttribute(AdjacencyListVertex.visited)) // if vertex has not been visited
+        		{
+        			allVisited = false;
+        			v.setAttribute(AdjacencyListVertex.visited, true);
+        			numOfNodes++;
+                    totalVisited++;
+        			queue.addLast(v.getAdjacentVertices());
+        		}
+        	}
+        	if (allVisited)
+        	{
+        		queue.removeFirst(); // remove list of vertices if all of them have been visited
+        	}
         }
         return numOfNodes;
     }
     
-    private static void resetFlags()
+    private static void resetVisited()
     {
         for (int i = 1; i <= graph.getVertexCount(); i++)
         {
             graph.getVertex(i).setAttribute(AdjacencyListVertex.visited, false);
-            graph.getVertex(i).setAttribute(AdjacencyListVertex.addedToList, false);
         }
     }
 }

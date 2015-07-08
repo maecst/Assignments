@@ -8,36 +8,25 @@ class AdjacencyListVertex implements Vertex
 {
 	public static final String name = "Name";
 	public static final String visited = "Visited";
-	public static final String addedToList = "Added";
 	private List edges_;
+	private List adjVertices;
 	
 	public AdjacencyListVertex( Object n )
 	{
 		setAttribute( name, n );
 		setAttribute( visited , false );
-		setAttribute( addedToList, false );
 		edges_ = new LinkedList();
-	}
-	
-	private boolean vertexSaved( Edge e )
-	{
-		Iterator it = getAdjacentVertices();
-		Vertex other = e.otherVertex(this);
-		while (it.hasNext())
-		{
-			if ((Vertex) it.next() == other)
-			{
-				return true;
-			}
-		}
-		return false;
+		adjVertices = new LinkedList();
 	}
 	
 	public void addEdge( Edge e )
 	{
-		if (!vertexSaved( e ))
+		// instead of adding an edge to a list of edges
+		// adding the other vertex to a list of vertices instead
+		//edges_.add( e );
+		if (!adjVertices.contains(e.otherVertex(this)))
 		{
-			edges_.add( e );
+			adjVertices.add(e.otherVertex(this));
 		}
 	}
 	
@@ -60,6 +49,7 @@ class AdjacencyListVertex implements Vertex
 		return new AdjIterator( this );
 	}
 	
+	// modified so adjIterator returns iterator of adjVertices and not edges_
 	class AdjIterator implements Iterator
 	{
 		private Iterator i_;
@@ -67,7 +57,7 @@ class AdjacencyListVertex implements Vertex
 		
 		public AdjIterator( Vertex v )
 		{
-			i_ = edges_.iterator();
+			i_ = adjVertices.iterator();
 			v_ = v;
 		}
 
@@ -78,8 +68,7 @@ class AdjacencyListVertex implements Vertex
 
 		public Object next()
 		{
-			Edge e = (Edge)i_.next();
-			return e.otherVertex( v_ );
+			return (Vertex )i_.next();
 		}
 
 		public void remove()

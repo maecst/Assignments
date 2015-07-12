@@ -5,11 +5,19 @@ class AdjacencyListEdge implements Edge
 {
 	private final Vertex v_;
 	private final Vertex w_;
+	public static final String length = "Length";
 
 	public AdjacencyListEdge( Vertex v, Vertex w )
 	{
 		v_ = v;
 		w_ = w;
+	}
+	
+	public AdjacencyListEdge( Vertex v, Vertex w, int edgeLength )
+	{
+		v_ = v;
+		w_ = w;
+		setAttribute( length, edgeLength );
 	}
 	
 	final public Vertex getSource()
@@ -20,6 +28,11 @@ class AdjacencyListEdge implements Edge
 	final public Vertex getDestination()
 	{
 		return w_;
+	}
+	
+	final public int getWeight()
+	{
+		return (int) getAttribute( length );
 	}
 
 	final public Vertex otherVertex( Vertex x )

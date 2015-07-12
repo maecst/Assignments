@@ -4,15 +4,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-
 class AdjacencyListVertex implements Vertex
 {
 	public static final String name = "Name";
+	public static final String visited = "Visited";
+        public static final String distance = "Distance";
+	public static final String prevVertex = "Previous";
+        
 	private List edges_;
 	
 	public AdjacencyListVertex( Object n )
 	{
 		setAttribute( name, n );
+		setAttribute( visited , false );
 		edges_ = new LinkedList();
 	}
 	
@@ -58,8 +62,7 @@ class AdjacencyListVertex implements Vertex
 
 		public Object next()
 		{
-			Edge e = (Edge)i_.next();
-			return e.otherVertex( v_ );
+			return (Vertex )i_.next();
 		}
 
 		public void remove()
@@ -80,6 +83,8 @@ class AdjacencyListVertex implements Vertex
 		sb.append( "} }" );
 		return sb.toString();
 	}
+        
+
 	
 	//decorator pattern attributes and methods
 	private final Map attributes_ = new HashMap();

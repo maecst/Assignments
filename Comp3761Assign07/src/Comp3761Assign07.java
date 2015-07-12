@@ -10,9 +10,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
+import java.util.Random;
 
 public class Comp3761Assign07 {
 
@@ -20,7 +23,7 @@ public class Comp3761Assign07 {
     private static final String fileName = "dijkstraData.txt";
     private static Graph graph;
     private static final int startingVertex = 1;
-    
+    private static final int[] selectedVertices = {7, 37, 59, 82, 99, 115, 133, 165, 188, 197 };
     
     /**
      * @param args
@@ -29,10 +32,8 @@ public class Comp3761Assign07 {
         
         graph = new AdjacencyListGraph();
         createGraph();
-        
-
         dijkstra();
-		
+	printSelectVertices();
         System.out.println("\nProgram completed.");
     }
 	
@@ -69,7 +70,7 @@ public class Comp3761Assign07 {
                 }
             }
             br.close();
-            System.out.println("Graph created.");
+            System.out.println("Graph created successfully.\n");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (NumberFormatException e) {
@@ -81,30 +82,31 @@ public class Comp3761Assign07 {
     
     private static void dijkstra()
     {
-        VertexComparator comparator = new VertexComparator();
-        PriorityQueue<Vertex> minHeap = new PriorityQueue<Vertex>(10, comparator);
+        System.out.println("Running Dijkstra's algorithm on graph...");
+        //VertexComparator comparator = new VertexComparator();
+        PriorityQueue<Vertex> minHeap = new PriorityQueue<Vertex>(200, comparator);
 	for (int i = 1; i <= graph.getVertexCount(); i++)
 	{
             Vertex currentV = graph.getVertex(i);
+            currentV.setAttribute( AdjacencyListVertex.visited, false );
             currentV.setAttribute( AdjacencyListVertex.distance, MAX_VALUE );
             currentV.setAttribute( AdjacencyListVertex.prevVertex, null );
             minHeap.add(currentV);
 	}
-		
+        
 	Vertex currentV = graph.getVertex(startingVertex);
 	currentV.setAttribute( AdjacencyListVertex.distance , 0 );
 	currentV.setAttribute( AdjacencyListVertex.visited, true );
+        minHeap.remove(currentV);
         
-        
-        // add some kind of loop here, to loop through the whole graph?
         int visited = 1;
         while (visited < graph.getVertexCount()) {
-            minHeap.remove(currentV);
             Iterator it = graph.getEdges(currentV);
             while (it.hasNext()) {
                 Edge e = (Edge) it.next();
                 Vertex otherV = e.otherVertex(currentV);
                 if (!(boolean) otherV.getAttribute(AdjacencyListVertex.visited)) {
+                    minHeap.remove(otherV);
                     int oldD = (int) otherV.getAttribute(AdjacencyListVertex.distance);
                     int newD = (int) e.getAttribute(AdjacencyListEdge.length)
                              + (int) currentV.getAttribute(AdjacencyListVertex.distance);
@@ -113,6 +115,7 @@ public class Comp3761Assign07 {
                         otherV.setAttribute(AdjacencyListVertex.distance, newD);
                         otherV.setAttribute(AdjacencyListVertex.prevVertex, currentV);
                     }
+                    minHeap.add(otherV);
                 }
             }
             //get vertex with shortest distance, update currentV
@@ -120,21 +123,32 @@ public class Comp3761Assign07 {
             currentV.setAttribute( AdjacencyListVertex.visited, true );
             visited++;
         }
+        System.out.println("Finished running Dijkstra's algorithm.\n");
     }
-}
-
-class VertexComparator implements Comparator
-{
-        public int compare(Object a, Object b)
+    
+    private static void printSelectVertices()
+    {
+        System.out.println("Shortest distance from Vertex " + startingVertex + " to:");
+        for (int i = 0; i < selectedVertices.length; i++)
         {
-            Vertex v = (Vertex) a;
-            Vertex otherV = (Vertex) b;
-            if ((int) v.getAttribute(AdjacencyListVertex.distance) > (int) otherV.getAttribute(AdjacencyListVertex.distance)) {
-                return 1;
-            } else if ((int) v.getAttribute(AdjacencyListVertex.distance) < (int) otherV.getAttribute(AdjacencyListVertex.distance)) {
-                return -1;
-            } else {
-                return 0;
-            }
+            int vName = selectedVertices[i];
+            System.out.print("Vertex " + vName + ": ");
+            Vertex v = graph.getVertex(vName);
+            System.out.print(v.getAttribute(AdjacencyListVertex.distance) 
+                    + ", previous vertex is: ");
+            Vertex prevV = (Vertex) v.getAttribute(AdjacencyListVertex.prevVertex);
+            System.out.println(prevV.getAttribute(AdjacencyListVertex.name));
         }
     }
+    
+    public static Comparator<Vertex> comparator = new Comparator<Vertex>(){
+         
+        @Override
+        public int compare(Vertex a, Vertex b)
+        {
+            int aDistance = (int) a.getAttribute(AdjacencyListVertex.distance);
+            int bDistance = (int) b.getAttribute(AdjacencyListVertex.distance);
+            return aDistance - bDistance;
+        }
+    };
+}

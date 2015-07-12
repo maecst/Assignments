@@ -16,7 +16,6 @@ class AdjacencyListVertex implements Vertex
 	public AdjacencyListVertex( Object n )
 	{
 		setAttribute( name, n );
-		setAttribute( visited , false );
 		edges_ = new LinkedList();
 	}
 	
@@ -62,7 +61,8 @@ class AdjacencyListVertex implements Vertex
 
 		public Object next()
 		{
-			return (Vertex )i_.next();
+                    Edge e = (Edge)i_.next();
+                    return e.otherVertex( v_ );
 		}
 
 		public void remove()

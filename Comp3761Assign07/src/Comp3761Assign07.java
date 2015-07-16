@@ -2,20 +2,16 @@
  * Project: Comp3761Assign07
  * File: Comp3761Assign07.java
  * Author: Gabriella Cheung, Mae Yee
- * Date: Jun 27, 2015
- * Time: 10:23:28 AM
+ * Date: Jul 15, 2015
  */
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
-import java.util.Random;
 
 public class Comp3761Assign07 {
 
@@ -33,7 +29,7 @@ public class Comp3761Assign07 {
         graph = new AdjacencyListGraph();
         createGraph();
         dijkstra();
-	printSelectVertices();
+		printSelectVertices();
         System.out.println("\nProgram completed.");
     }
 	
@@ -134,10 +130,7 @@ public class Comp3761Assign07 {
             int vName = selectedVertices[i];
             System.out.print("Vertex " + vName + ": ");
             Vertex v = graph.getVertex(vName);
-            System.out.print(v.getAttribute(AdjacencyListVertex.distance) 
-                    + ", previous vertex is: ");
-            Vertex prevV = (Vertex) v.getAttribute(AdjacencyListVertex.prevVertex);
-            System.out.println(prevV.getAttribute(AdjacencyListVertex.name));
+            System.out.println(v.getAttribute(AdjacencyListVertex.distance));
         }
     }
     
